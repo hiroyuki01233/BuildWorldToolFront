@@ -21,7 +21,7 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = 'http://localhost:8080';
-// axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true;
 // axios.defaults.headers.withCredentials = true;
 
 class Register extends Component {
@@ -31,11 +31,12 @@ class Register extends Component {
         this.registerClicked = this.registerClicked.bind(this);
       }
 
+
     registerClicked() {
         axios.post('http://localhost:8080/register', {
-            username: this.state.username,
+            name: this.state.username,
             password: this.state.password,
-        }, { withCredentials: true })
+        })
         .then(function (response) {
           console.log(response.data);
         })
