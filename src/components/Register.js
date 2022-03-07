@@ -32,8 +32,6 @@ class Register extends Component {
       }
 
     registerClicked() {
-        console.log("test");
-        console.log(this.state);
         axios.post('http://localhost:8080/register', {
             username: this.state.username,
             password: this.state.password,
