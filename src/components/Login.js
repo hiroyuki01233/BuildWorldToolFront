@@ -15,6 +15,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { teal } from "@mui/material/colors";
 import React, { useState, useEffect, Component } from 'react'
 import axios from 'axios';
+import { Outlet, Navigate, useNavigate } from "react-router-dom";
 
 // let textInput = React.createRef();
 
@@ -24,22 +25,23 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = 'http://localhost:8
 axios.defaults.withCredentials = true;
 // axios.defaults.headers.withCredentials = true;
 
-class Login extends Component {
-  constructor(props) {
-      super(props);
-      this.state = {username: "", password: ""};
-      this.loginClicked = this.loginClicked.bind(this);
-    }
+export default function Login() {
+  const [username, setUsername] = React.useState(false);
+  const [password, setPassword] = React.useState(false);
+  const navigate = useNavigate();
 
-  loginClicked() {
-      console.log("test");
-      console.log(this.state);
+  useEffect(() => {
+  }, []);
+
+    
+  const loginClicked = () => {
       axios.post('http://localhost:8080/login', {
-          name: this.state.username,
-          password: this.state.password,
+          name: username,
+          password: password,
       })
       .then(function (response) {
         console.log(response.data);
+        navigate("/projects");
       })
       .catch(function (error) {
         console.log(error);
@@ -49,55 +51,51 @@ class Login extends Component {
       });
   }
 
-  render() {
-      return (
-          <Grid>
-          <Paper
-              elevation={3}
-              sx={{
-              p: 4,
-              height: "70vh",
-              width: "280px",
-              m: "20px auto"
-              }}
-          >
-              <Grid
-              container
-              direction="column"
-              justifyContent="flex-start" //多分、デフォルトflex-startなので省略できる。
-              alignItems="center"
-              >
-              <Avatar sx={{ bgcolor: teal[400] }}>
-                  <LockOutlinedIcon />
-              </Avatar>
-              <Typography variant={"h5"} sx={{ m: "30px" }}>
-              Login
-              </Typography>
-              </Grid>
-              <TextField label="Username" variant="standard" fullWidth required onChange={e => this.setState({username: e.target.value})} />
-              <TextField
-              type="password"
-              label="Password"
-              variant="standard"
-              fullWidth
-              required
-              onChange={e => this.setState({password: e.target.value})}
-              />
-              {/* ラベルとチェックボックス */}
-              <Box mt={3}>
-              <Button type="button" color="primary" variant="contained" fullWidth id="test" onClick={this.loginClicked}>
-                  ログイン
-              </Button>
+    return (
+        <Grid>
+        <Paper
+            elevation={3}
+            sx={{
+            p: 4,
+            height: "70vh",
+            width: "280px",
+            m: "20px auto"
+            }}
+        >
+            <Grid
+            container
+            direction="column"
+            justifyContent="flex-start" //多分、デフォルトflex-startなので省略できる。
+            alignItems="center"
+            >
+            <Avatar sx={{ bgcolor: teal[400] }}>
+                <LockOutlinedIcon />
+            </Avatar>
+            <Typography variant={"h5"} sx={{ m: "30px" }}>
+            Login
+            </Typography>
+            </Grid>
+            <TextField label="Username" variant="standard" fullWidth required onChange={e => setUsername(e.target.value)} />
+            <TextField
+            type="password"
+            label="Password"
+            variant="standard"
+            fullWidth
+            required
+            onChange={e => setPassword(e.target.value)}
+            />
+            {/* ラベルとチェックボックス */}
+            <Box mt={3}>
+            <Button type="button" color="primary" variant="contained" fullWidth id="test" onClick={loginClicked}>
+                ログイン
+            </Button>
 
-              <Typography variant="caption" display="block" sx={{ m: "20px" }}>
-                  アカウントを持っていますか？
-                  <Link href="register">登録</Link>
-              </Typography>
-              </Box>
-          </Paper>
-          </Grid>
-      );
-  };
+            <Typography variant="caption" display="block" sx={{ m: "20px" }}>
+                アカウントを持っていますか？
+                <Link href="register">登録</Link>
+            </Typography>
+            </Box>
+        </Paper>
+        </Grid>
+    );
 };
-
-export default Login;

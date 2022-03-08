@@ -19,6 +19,7 @@ import Chronology from "./components/Chronology"
 import Login from "./components/Login"
 import Register from "./components/Register"
 import UserList from "./components/UserList"
+import Idea from "./components/Idea"
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:3000';
@@ -39,10 +40,11 @@ class App extends Component {
             <Route path="/register" element={<Register />}/>
           </Route>
           <Route exact path="/project/:username/:projectName" element={<Project />}>
-            <Route path="users" element={<UserList />}/>
-            <Route path="characters" element={<CharacterList />}/>
-            <Route path="character/:characterName" element={<Character />}/>
-            <Route path="chronology" element={<Chronology />}/>
+            <Route path="users" element={<Project />}/>
+            <Route path="characters" element={<Project />}/>
+            <Route path="character/:characterName" element={<Project />}/>
+            <Route path="chronology" element={<Project />}/>
+            <Route path="idea" element={<Project />}/>
           </Route>
         </Routes>
       </BrowserRouter>

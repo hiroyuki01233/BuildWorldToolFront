@@ -42,13 +42,6 @@ testBtnClicked() {
 render() {
     return (
       <Grid>
-        <Paper>
-            <Box mt={3}>
-            <Button type="button" color="primary" variant="contained" fullWidth id="test" onClick={this.testBtnClicked}>
-                登録
-            </Button>
-            </Box>
-        </Paper>
         <Outlet />
       </Grid>
     );

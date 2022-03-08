@@ -79,17 +79,17 @@ function renderRow(props) {
 // }
 
 
+
 export default function Projects() {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const intervalRef = useRef(null);
   const [title, setTitle] = React.useState(false);
-  const [titleEng, setTitleEng] = React.useState(false);
+  const [name, setName] = React.useState(false);
   const [userData,setUserData]=useState([])
 
   let successFlg = false;
   let responseData = null;
-
   
   useEffect(() => {
     axios.get('http://localhost:8080/restricted/projects')
@@ -110,8 +110,8 @@ export default function Projects() {
 
   const createProject = () => {
       axios.post('http://localhost:8080/restricted/project', {
-          name: title,
-          title: titleEng,
+          title: title,
+          name: name,
       })
       .then(function (response) {
         successFlg = true;
@@ -162,42 +162,94 @@ export default function Projects() {
     setLoading(true);
   }
 
+  if (userData){
+    return (
+      <div>
+        <>
+          {userData.map((data,id)=>{
+            return (
+            <div key={id}>
+              <Card sx={{ maxWidth: 1000 }}>
+                  <CardActionArea>
+                    <Link href={"/project/"+data["admin_name"]+"/"+data.name}>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image="https://images.pexels.com/photos/8589272/pexels-photo-8589272.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+                        alt="shumbnail"
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                        {data.name} {data.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                        {data.detail}
+                        </Typography>
+                      </CardContent>
+                    </Link>
+                  </CardActionArea>
+              </Card>
+            </div>
+            )
+          })}
+        </>
   
-
+      <Box>
+        <Button variant="outlined" onClick={handleClickOpen}>
+        新規プロジェクト
+        </Button>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>新しいプロジェクトを作成する</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              タイトル(編集可)を入力してプロジェクトを作成してください。
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="text"
+              label="Title"
+              type="text"
+              fullWidth
+              variant="standard"
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </DialogContent>
+          <DialogContent>
+            <DialogContentText>
+              アルファベットのプロジェクト名(編集不可)を入力してください。URLの一部になります。
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="text"
+              label="Project Name -no space-"
+              type="text"
+              fullWidth
+              variant="standard"
+              onChange={(event) => setName(event.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>キャンセル</Button>
+            <LoadingButton
+              onClick={createProjectBtn}
+              loading={loading}
+              variant="outlined"
+            >
+              作成する
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
+      </Box>
+      </div>
+    );
+  } else {
   return (
     <div>
-      <>
-        {userData.map((data,id)=>{
-          return (
-          <div key={id}>
-            <Card sx={{ maxWidth: 1000 }}>
-                <CardActionArea>
-                  <Link href={"/project/"+data["admin_name"]+"/"+data.name}>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image="https://images.pexels.com/photos/8589272/pexels-photo-8589272.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-                      alt="shumbnail"
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                      {data.name} {data.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                      {data.detail}
-                      </Typography>
-                    </CardContent>
-                  </Link>
-                </CardActionArea>
-            </Card>
-          </div>
-          )
-        })}
-      </>
-
     <Box>
       <Button variant="outlined" onClick={handleClickOpen}>
-        Open form dialog
+        新規プロジェクト
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>新しいプロジェクトを作成する</DialogTitle>
@@ -228,12 +280,11 @@ export default function Projects() {
             type="text"
             fullWidth
             variant="standard"
-            onChange={(event) => setTitleEng(event.target.value)}
+            onChange={(event) => setName(event.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>キャンセル</Button>
-          <Button onClick={createProjectBtn}>作成</Button>
           <LoadingButton
             onClick={createProjectBtn}
             loading={loading}
@@ -246,4 +297,5 @@ export default function Projects() {
     </Box>
     </div>
   );
+}
 }

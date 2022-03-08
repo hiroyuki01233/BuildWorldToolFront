@@ -1,7 +1,6 @@
-import { Outlet, Navigate, useNavigate } from "react-router-dom";
+import { Outlet, Navigate, useNavigate, useLocation } from "react-router-dom";
 import {
   Avatar,
-  Box,
   Button,
   Checkbox,
   FormControlLabel,
@@ -12,28 +11,146 @@ import {
   TextField,
   Typography,
   CardActionArea,
-  CardActions
+  CardActions,
+  Box
 } from "@mui/material";
 // import React, { useState, useEffect, Component } from 'react'
 import React, { useState, useEffect, Component, useRef } from 'react'
 import axios from 'axios';
 
+import PropTypes from 'prop-types';
+import AppBar from '@mui/material/AppBar';
+import CssBaseline from '@mui/material/CssBaseline';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import MailIcon from '@mui/icons-material/Mail';
+import MenuIcon from '@mui/icons-material/Menu';
+import Toolbar from '@mui/material/Toolbar';
+import CharacterList from "./CharacterList";
+
+import Login from "./Login"
 
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = 'http://localhost:8080';
 axios.defaults.withCredentials = true;
 
-export default function Project() {  
+const drawerWidth = 240;
+
+
+function test(){
+  return (
+    <p>test</p>
+  )
+}
+
+export default function Project(props) {  
+  const navigate = useNavigate();
+  const sampleLocation = useLocation();
+  const urlSplit = sampleLocation.pathname.split('/');
+  const adminName = urlSplit[2];
+  const projectName = urlSplit[3];
+  const [projectData, setProjectData] = React.useState(false);
+  const [textBox, setTextBox] = React.useState(false);
+
   useEffect(() => {
-    
+    let testList = {"test":"unko"};
+    console.log(testList["test"]);
+    console.log(sampleLocation);
+
+    axios.get('http://localhost:8080/restricted/project',{
+      params: {
+        adminName: adminName,
+        projectName: projectName,
+      }
+    })
+    .then(function (response) {
+      console.log(response.data);
+      console.log("accessed!");
+      setProjectData(response.data)
+      setTextBox(response.data.MainText)
+    })
+    .catch(function (error) {
+      console.log(error);
+      console.log("bad request");
+    })
+    .finally(function () {
+    });
+
   }, []);
 
-
-
+  const clicked = (text) => {
+    let sidebarList = {'メイン':"", 'キャラクター':"characters", 'アイディア':"idea", '年表':"chronology"}
+    let sidebarListForData = {'メイン':"MainText", 'アイディア':"Idea", '年表':"Chronology"}
+    if (text == "他のプロジェクト"){
+      navigate("/projects")
+    } else{
+      navigate("/project/"+adminName+"/"+projectName+"/"+sidebarList[text]);
+      if (text == "キャラクター"){
+        return(setTextBox(CharacterList(projectData)));
+      }
+      setTextBox(projectData[sidebarListForData[text]]);
+    }
+  }
+  
   return (
     <div>
-      <h1>test</h1>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              {projectData.Title}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+          }}
+        >
+          <Toolbar />
+          <Box sx={{ overflow: 'auto' }}>
+            <List>
+              {['他のプロジェクト'].map((text, index) => (
+                <ListItem button key={text} onClick={() => clicked(text)}>
+                  <ListItemIcon>
+                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItem>
+              ))}
+            </List>
+            <Divider />
+            <List>
+              {['メイン', 'キャラクター', 'アイディア', '年表'].map((text, index) => (
+                <ListItem button key={text} onClick={() => clicked(text)}>
+                  <ListItemIcon>
+                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={text} />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Toolbar />
+          {/* <Typography paragraph>
+            {textBox}
+          </Typography> */}
+          {textBox}
+        </Box>
+      </Box>
     </div>
   );
 }

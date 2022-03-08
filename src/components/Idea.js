@@ -40,7 +40,7 @@ axios.defaults.withCredentials = true;
 
 const drawerWidth = 240;
 
-export default function Character(props) {  
+export default function Idea(props) {  
   const navigate = useNavigate();
   const sampleLocation = useLocation();
   const urlSplit = sampleLocation.pathname.split('/');
@@ -129,7 +129,7 @@ export default function Character(props) {
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar />
           <Typography paragraph>
-            {projectData.mainText}
+            {projectData.Idea}
           </Typography>
         </Box>
       </Box>
