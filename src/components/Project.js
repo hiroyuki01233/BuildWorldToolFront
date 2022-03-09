@@ -41,6 +41,9 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
+import { ThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
+
+import styles from '../index.css'
 
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
@@ -67,8 +70,30 @@ export default function Project(props) {
   const [isCharacterPage, setIsCharacterPage] = React.useState(false);
   let projectCharaData = [];
   const [checked, setChecked] = React.useState(true);
+  const [textBody, setTextBody] = React.useState(true);
+  const [textBodyView, setTextBodyView] = React.useState(true);
 
   const handleChange = (event) => {
+    console.log(textBody);
+    let pdata = projectData;
+    pdata.MainText = textBody;
+    setProjectData(pdata);
+    console.log(pdata.MainText);
+
+    axios.patch('http://localhost:8080/restricted/project/'+projectData.Id,{
+      column: "main_text",
+      body: textBody,
+    })
+    .then(function (response) {
+
+    })
+    .catch(function (error) {
+      console.log(error);
+      console.log("bad request");
+    })
+    .finally(function () {
+    });
+
     setChecked(event.target.checked);
   };
 
@@ -107,6 +132,7 @@ export default function Project(props) {
       setProjectData(response.data);
       getCharactersData(response.data.Id);
       projectCharaData = response.data;
+      setTextBody(response.data.MainText);
       console.log(response.data);
     })
     .catch(function (error) {
@@ -132,6 +158,13 @@ export default function Project(props) {
       navigate("/project/"+adminName+"/"+projectName+sidebarList[text]);
     }
   }
+  
+  // const useStyles = makeStyles({
+  //   customTextField: {
+  //     "white-space": "pre-wrap",
+  //   },
+  // })
+  // const classes = useStyles()
   
   return (
     <div>
@@ -201,21 +234,22 @@ export default function Project(props) {
           <Toolbar />
             <Grid>
             {urlSplit.length == 4 ? (
-              <Box sx={{ width: '100%', maxWidth: 500 }}>
+              <Box sx={{ width: '100%', maxWidth: 1200 }}>
                 {checked ? (
                   <div>
                     <TextField
                       id="standard-multiline-static"
-                      label="編集中 メインテキスト"
+                      sx={{ m: 5, width: '100%', height: '100%'}}
                       multiline
-                      rows={4}
+                      minRows={10}
                       defaultValue={projectData.MainText}
+                      onChange={(event) => setTextBody(event.target.value)}
                       variant="standard"
                     />
                   </div>
                 ): (
-                  <Typography variant="body1" gutterBottom>
-                    {projectData.MainText}
+                  <Typography variant="body1" gutterBottom style={{ whiteSpace: "pre-line" }}>
+                    {textBody}
                   </Typography>
                 )}
               </Box>
