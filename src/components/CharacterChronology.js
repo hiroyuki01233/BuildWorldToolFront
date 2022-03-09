@@ -50,56 +50,17 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = 'http://localhost:8080';
 axios.defaults.withCredentials = true;
 
-export default function CharacterList() {
+export default function CharacterChronology() {
   const [projectData, setProjectData] = useOutletContext();
-  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("this is project data and project ones");
   }, []);
 
-  const clicked = (projectName) => {
-    console.log("clicked chara");
-    let pdata = projectData;
-    pdata.characterFlg = true;
-    pdata.selectChara = projectName;
-    setProjectData(pdata);
-    console.log(projectData);
-    navigate("/project/"+projectData.UserName+"/"+projectData.Name+"/character/"+projectName);
-  }
-
   if (projectData.characters){
     return (
       <div>
-        <>
-          {projectData.characters.map((data,id)=>{
-            return (
-            <div key={id}>
-              {/* <Link href={"character/"+data.name}> */}
-                <Card sx={{ maxWidth: 1000 }} onClick={() => clicked(data.name)}>
-                    <CardActionArea>
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image="https://images.pexels.com/photos/8589272/pexels-photo-8589272.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-                        alt="shumbnail"
-                        to="/tset"
-                      />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                        {data.name} {data.fullName}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                        {data.subTitle}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                </Card>
-              {/* </Link> */}
-            </div>
-            )
-          })}
-        </>
+        character chronology page 
       </div>
     )
   } else{

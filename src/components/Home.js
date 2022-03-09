@@ -19,6 +19,7 @@ axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = 'http://localhost:8080';
 
+
 class Home extends Component {
   constructor(props) {
     super(props);

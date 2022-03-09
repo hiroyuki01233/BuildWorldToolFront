@@ -20,7 +20,10 @@ import Login from "./components/Login"
 import Register from "./components/Register"
 import UserList from "./components/UserList"
 import Idea from "./components/Idea"
+import CharacterIdea from "./components/CharacterIdea"
+import CharacterChronology from "./components/CharacterChronology"
 import axios from 'axios';
+
 
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
@@ -40,11 +43,14 @@ class App extends Component {
             <Route path="/register" element={<Register />}/>
           </Route>
           <Route exact path="/project/:username/:projectName" element={<Project />}>
-            <Route path="users" element={<Project />}/>
-            <Route path="characters" element={<Project />}/>
-            <Route path="character/:characterName" element={<Project />}/>
-            <Route path="chronology" element={<Project />}/>
-            <Route path="idea" element={<Project />}/>
+            <Route path="users" element={<UserList />}/>
+            <Route path="characters" element={<CharacterList />}/>
+            <Route path="character/:characterName" element={<Character />}>
+              <Route path="idea" element={<CharacterIdea />}/>
+              <Route path="chronology" element={<CharacterChronology />}/>
+            </Route>
+            <Route path="chronology" element={<Chronology />}/>
+            <Route path="idea" element={<Idea />}/>
           </Route>
         </Routes>
       </BrowserRouter>
