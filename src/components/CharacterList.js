@@ -53,30 +53,149 @@ axios.defaults.withCredentials = true;
 export default function CharacterList() {
   const [projectData, setProjectData] = useOutletContext();
   const navigate = useNavigate();
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const intervalRef = useRef(null);
+  const [name, setName] = React.useState(false);
+  const [fullName, setFullName] = React.useState(false);
+  const [userData,setUserData]=useState([])
+  let successFlg = false;
+  let responseData = null;
+  let responseCharaData = null;
+  
 
   useEffect(() => {
-    console.log("this is project data and project ones");
+    console.log("this is character list");
   }, []);
 
-  const clicked = (projectName) => {
-    console.log("clicked chara");
+
+  const createChara = () => {
+    axios.post('http://localhost:8080/restricted/character', {
+        "projectId": String(projectData.Id),
+        "name": name,
+        "fullName": fullName,
+    })
+    .then(function (response) {
+      successFlg = true;
+      let pdata = projectData;
+      pdata.characters.push(response.data);
+      pdata.characterFlg = true;
+      pdata.selectChara = response.data.name;
+      setProjectData(pdata);
+      responseCharaData = response.data;
+    })
+    .catch(function (error) {
+      console.log(error);
+      console.log("bad request");
+    })
+    .finally(function () {
+    });
+}
+
+  const createCharaBtn = () => {
+    handleClick();
+    createChara();
+    let times = 0;
+    if (intervalRef.current !== null) {
+      return;
+    }
+    intervalRef.current = setInterval(() => {
+      times++;
+      if (times == 2) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+        setOpen(false);
+        if(successFlg){
+          navigate("/project/"+projectData.UserName+"/"+projectData.Name+"/character/"+responseCharaData.full_name);
+        } else{
+          navigate("/");
+        }
+      }
+    }, 1000);
+
+  }
+
+
+  const clickedChara = (characterName) => {
     let pdata = projectData;
     pdata.characterFlg = true;
-    pdata.selectChara = projectName;
+    pdata.selectChara = characterName;
     setProjectData(pdata);
-    console.log(projectData);
-    navigate("/project/"+projectData.UserName+"/"+projectData.Name+"/character/"+projectName);
+    navigate("/project/"+projectData.UserName+"/"+projectData.Name+"/character/"+characterName);
   }
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  function handleClick() {
+    setLoading(true);
+  }
+
+
 
   if (projectData.characters){
     return (
       <div>
+        <Box>
+        <Button variant="outlined" onClick={handleClickOpen}>
+        新規キャラクター
+        </Button>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>新しいキャラクターを作成する</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              名前(編集可)を入力してキャラクターを作成してください。
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="text"
+              label="Name"
+              type="text"
+              fullWidth
+              variant="standard"
+              onChange={(event) => setName(event.target.value)}
+            />
+          </DialogContent>
+          <DialogContent>
+            <DialogContentText>
+              アルファベットのキャラクター名(編集不可)を入力してください。URLの一部になります。
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="text"
+              label="Character Name -no space-"
+              type="text"
+              fullWidth
+              variant="standard"
+              onChange={(event) => setFullName(event.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>キャンセル</Button>
+            <LoadingButton
+              onClick={createCharaBtn}
+              loading={loading}
+              variant="outlined"
+            >
+              作成する
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
+      </Box>
+
         <>
           {projectData.characters.map((data,id)=>{
             return (
             <div key={id}>
               {/* <Link href={"character/"+data.name}> */}
-                <Card sx={{ maxWidth: 1000 }} onClick={() => clicked(data.name)}>
+                <Card sx={{ maxWidth: 1000 }} onClick={() => clickedChara(data.full_name)}>
                     <CardActionArea>
                       <CardMedia
                         component="img"
@@ -87,7 +206,7 @@ export default function CharacterList() {
                       />
                       <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
-                        {data.name} {data.fullName}
+                        {data.name} {data.full_name}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                         {data.subTitle}

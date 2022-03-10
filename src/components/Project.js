@@ -69,23 +69,23 @@ export default function Project(props) {
   const [textBox, setTextBox] = React.useState(false);
   const [isCharacterPage, setIsCharacterPage] = React.useState(false);
   let projectCharaData = [];
-  const [checked, setChecked] = React.useState(true);
-  const [textBody, setTextBody] = React.useState(true);
+  const [checked, setChecked] = React.useState(false);
+  const [textBody, setTextBody] = React.useState();
   const [textBodyView, setTextBodyView] = React.useState(true);
+  const strToObj = {"chronology":"Chronology","description":"Description","main_text":"MainText","name":"Name","sub_title":"SubTitle","title":"Title","idea":"Idea"}
+  const urlTableList = {"undefined":"main_text","idea":"idea","chronology":"chronology"};
 
-  const handleChange = (event) => {
-    console.log(textBody);
-    let pdata = projectData;
-    pdata.MainText = textBody;
-    setProjectData(pdata);
-    console.log(pdata.MainText);
-
+  const updateProject = (column, body) => {
     axios.patch('http://localhost:8080/restricted/project/'+projectData.Id,{
-      column: "main_text",
-      body: textBody,
+      "column": column,
+      "body": body,
     })
     .then(function (response) {
-
+      console.log(response);
+      let pdata = projectData;
+      pdata[strToObj[urlTableList[urlSplit[4]]]] = textBody;
+      setProjectData(pdata);
+      console.log(projectData);
     })
     .catch(function (error) {
       console.log(error);
@@ -93,7 +93,17 @@ export default function Project(props) {
     })
     .finally(function () {
     });
+  }
 
+  const handleChange = (event) => {
+    if (!event.target.checked)
+    {    
+      console.log("handle func");
+      let pdata = projectData;
+      pdata[strToObj[urlTableList[urlSplit[4]]]] = textBody;
+      setProjectData(pdata);
+      updateProject(urlTableList[urlSplit[4]],textBody)
+    }
     setChecked(event.target.checked);
   };
 
@@ -107,7 +117,12 @@ export default function Project(props) {
       console.log("this is getcharacter func")
       projectCharaData["characters"]=response.data;
       projectCharaData["characterFlg"]=false;
-      projectCharaData["selectChara"]="";
+      if(urlSplit[4] != "Undefind" && urlSplit[5] != "Undefind" && urlSplit[4] == "character"){
+        let pdata = projectData;
+        projectCharaData["selectChara"] = urlSplit[5];
+      }else{
+        projectCharaData["selectChara"]="";
+      }
       setProjectData(projectCharaData);
     })
     .catch(function (error) {
@@ -121,7 +136,7 @@ export default function Project(props) {
   useEffect(() => {
     console.log(urlSplit);
     setIsCharacterPage(false);
-    let testList = {"test":"unko"};
+
     axios.get('http://localhost:8080/restricted/project',{
       params: {
         adminName: adminName,
@@ -131,9 +146,8 @@ export default function Project(props) {
     .then(function (response) {
       setProjectData(response.data);
       getCharactersData(response.data.Id);
-      projectCharaData = response.data;
       setTextBody(response.data.MainText);
-      console.log(response.data);
+      projectCharaData = response.data;
     })
     .catch(function (error) {
       console.log(error);
@@ -145,26 +159,41 @@ export default function Project(props) {
 
   const clicked = (text) => {
     let sidebarList = {'メイン':"", 'キャラクター':"/characters", 'アイディア':"/idea", '年表':"/chronology"}
-    let sidebarListForData = {'メイン':"MainText", 'アイディア':"Idea", '年表':"Chronology"}
+    let sidebarListC = {'メイン':"main_text", 'アイディア':"idea", '年表':"chronology"}
     let sidebarChara = {'キャラ:メイン':"", 'キャラ:アイディア':"/idea", 'キャラ:年表':"/chronology"}
+
     if (text == "他のプロジェクト"){
       navigate("/projects")
     } else if (text in sidebarChara){
       navigate("character/"+projectData.selectChara+sidebarChara[text]);
-    } else{
+    } else {
       let pdata = projectData;
-      pdata.characterFlg = false;
-      setProjectData(pdata);
+      pdata["characterFlg"] = false;
       navigate("/project/"+adminName+"/"+projectName+sidebarList[text]);
     }
-  }
-  
-  // const useStyles = makeStyles({
-  //   customTextField: {
-  //     "white-space": "pre-wrap",
-  //   },
-  // })
-  // const classes = useStyles()
+    
+    if (urlSplit[4] != "characters" && urlSplit[4] != "character") {
+      updateProject(urlTableList[urlSplit[4]], textBody);
+    }
+    if (text in sidebarList) {
+      let pdata = projectData;
+      pdata.selectPage = sidebarList[text];
+      pdata[strToObj[urlTableList[urlSplit[4]]]] = textBody;
+      setProjectData(pdata);
+      setTextBody(projectData[strToObj[sidebarListC[text]]])
+    }
+    if (text in sidebarChara){
+    let character;
+    for (const element of projectData.characters) {
+      console.log(element);
+      if (element.full_name == "TANAKATaro"){
+        character = element;
+        setTextBody("ddddddddddddddddddddddddddddddddddd");
+      }
+    }
+      setTextBody(projectData["characters"][0][strToObj[sidebarListC[text]]])
+    }
+}
   
   return (
     <div>
@@ -218,7 +247,7 @@ export default function Project(props) {
                 </ListItem>
               ))}
             </List>
-            {projectData.characterFlg ? (<List>
+            {urlSplit[4] == "character" ? (<List>
               {['キャラ:メイン', 'キャラ:アイディア', 'キャラ:年表'].map((text, index) => (
                 <ListItem button key={text} onClick={() => clicked(text)}>
                   <ListItemIcon>
@@ -233,22 +262,22 @@ export default function Project(props) {
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar />
             <Grid>
-            {urlSplit.length == 4 ? (
+            {urlSplit.length < 5 || urlSplit[4] != "characters" ? (
               <Box sx={{ width: '100%', maxWidth: 1200 }}>
                 {checked ? (
                   <div>
                     <TextField
                       id="standard-multiline-static"
-                      sx={{ m: 5, width: '100%', height: '100%'}}
+                      sx={{ m: 1, width: '100%', height: '100%'}}
                       multiline
                       minRows={10}
-                      defaultValue={projectData.MainText}
+                      value={textBody}
                       onChange={(event) => setTextBody(event.target.value)}
                       variant="standard"
                     />
                   </div>
                 ): (
-                  <Typography variant="body1" gutterBottom style={{ whiteSpace: "pre-line" }}>
+                  <Typography sx={{ m: 1, width: '100%', height: '100%'}} variant="body1" gutterBottom style={{ whiteSpace: "pre-line" }}>
                     {textBody}
                   </Typography>
                 )}

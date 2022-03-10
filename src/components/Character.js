@@ -52,13 +52,14 @@ axios.defaults.withCredentials = true;
 
 export default function Character() {
   const [projectData, setProjectData] = useOutletContext();
+  const [textBody, setTextBody] = useOutletContext();
   const nowLocation = useLocation();
   const urlSplit = nowLocation.pathname.split('/');
   console.log(urlSplit);
 
   useEffect(() => {
-    console.log("this is project data and project ones");
-    console.log(projectData);
+    console.log("thsi is text body");
+    console.log(textBody);
   }, []);
 
   if (urlSplit.length == 6) {
@@ -67,6 +68,7 @@ export default function Character() {
       <div>
         <Grid>
           character main page!!
+          {textBody}
         </Grid>
       </div>
     )

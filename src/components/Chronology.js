@@ -54,7 +54,7 @@ export default function Chronology() {
   const [projectData, setProjectData] = useOutletContext();
 
   useEffect(() => {
-    console.log("this is project data and project ones");
+    console.log("this is chronology");
   }, []);
 
   if (projectData.characters){
